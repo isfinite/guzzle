@@ -1,0 +1,6 @@
+#!/usr/bin/env node
+
+var Guzzle = require('../'),
+	guzzle = new Guzzle();
+
+guzzle.run();

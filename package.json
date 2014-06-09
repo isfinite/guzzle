@@ -1,0 +1,30 @@
+{
+  "name": "guzzle",
+  "version": "0.1.0",
+  "description": "gulp.js dev evironment builder",
+  "main": "./lib/guzzle.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/isfinite/guzzle.git"
+  },
+  "keywords": [
+    "gulp"
+  ],
+  "bin": {
+    "guzzle": "./bin/guzzle"
+  },
+  "author": "Lauren Smith",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/isfinite/guzzle/issues"
+  },
+  "homepage": "https://github.com/isfinite/guzzle",
+  "dependencies": {
+    "inquirer": "^0.5.1",
+    "bower": "^1.3.5"
+  },
+  "preferGlobal": "true"
+}
