@@ -27,6 +27,10 @@ if (packages.mocha) {
 	});
 }
 
+gulp.addTask('lint', function() {
+	return packages.gulp.src('./test/*.js').pipe(packages['gulp-jshint']());
+});
+
 gulp.addTask('clean', function() {
 	return packages.gulp.src('./' + toDirName, {read: false}).pipe(packages['gulp-clean']());
 });
@@ -42,10 +46,19 @@ if (packages['gulp-bower-files']) {
 if (packages['browserify']) {
 	gulp.addTask('browserify', function() {
 		packages['browserify']('./lib/' + jsFileName + '.js').bundle() 
-				.pipe(packages['vinyl-source-stream']('./js/' + jsFileName + '.js'))
-				.pipe(packages.gulp.dest('./' + toDirName));
+			.pipe(packages['vinyl-source-stream']('./js/' + jsFileName + '.js'))
+			.pipe(packages.gulp.dest('./' + toDirName));
 	});
 }
+
+gulp.addTask('concat', function() {
+	packages.gulp.src(['./' + toDirName + '/js/' + require('.bowerrc').directory + '.js', './' + toDirName + '/js/' + jsFileName + '.js'])
+		.pipe(packages['gulp-concat'](jsFileName + '.js'))
+		.pipe(packages.gulp.dest('./' + toDirName + '/js'));
+
+	return packages.gulp.src('./' + toDirName + '/js/' + jsFileName + '.js')
+		.pipe(packages.gulp.dest('./' + toDirName));
+});
 
 gulp.addTask('default', function() {
 	require('child_process').exec('node server.js');
