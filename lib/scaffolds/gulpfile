@@ -1,4 +1,5 @@
 var devDependencies = Object.keys(require('./package.json').devDependencies),
+	fs = require('fs'),
 	packages = {};
 
 var toDirName = process.env.TO_DIR_NAME || 'public',
@@ -51,13 +52,49 @@ if (packages['browserify']) {
 	});
 }
 
-gulp.addTask('concat', function() {
-	packages.gulp.src(['./' + toDirName + '/js/' + require('.bowerrc').directory + '.js', './' + toDirName + '/js/' + jsFileName + '.js'])
-		.pipe(packages['gulp-concat'](jsFileName + '.js'))
-		.pipe(packages.gulp.dest('./' + toDirName + '/js'));
+gulp.addTask('concat', function(callback) {
+	fs.readFile('./.bowerrc', { encoding: 'utf8' }, function(err, data) {
+		packages.gulp.src(['./' + toDirName + '/js/' + JSON.parse(data).directory + '.js', './' + toDirName + '/js/' + jsFileName + '.js'])
+			.pipe(packages['gulp-concat'](jsFileName + '.js'))
+			.pipe(packages.gulp.dest('./' + toDirName + '/js'));
 
+		packages.gulp.src('./' + toDirName + '/js/' + jsFileName + '.js')
+			.pipe(packages.gulp.dest('./' + toDirName));
+
+		callback();
+	});
+});
+
+gulp.addTask('copy', function() {
 	return packages.gulp.src('./' + toDirName + '/js/' + jsFileName + '.js')
 		.pipe(packages.gulp.dest('./' + toDirName));
+});
+
+gulp.addTask('css', function() {
+	var stream = packages.gulp.src('lib/css/*.css');
+
+	if (packages['gulp-less']) {
+		stream.pipe(packages['gulp-less']());
+	}
+
+	return stream.pipe(packages['gulp-minify-css']({keepBreaks:true}))
+		.pipe(packages.gulp.dest(toDirName + '/css'));
+});
+
+gulp.addTask('uglify', function() {
+	return packages.gulp.src('./' + toDirName + '/' + jsFileName + '.js')
+		.pipe(packages['gulp-uglify']())
+		.pipe(packages['gulp-rename'](jsFileName + '.min.js'))
+		.pipe(packages.gulp.dest('./' + toDirName + '/js'));
+});
+
+gulp.addTask('cleanup', function() {
+	packages.gulp.src('./' + toDirName + '/' + jsFileName + '.js', {read: false}).pipe(packages['gulp-clean']());
+	return packages.gulp.src('./' + toDirName + '/js/vendor.js', {read: false}).pipe(packages['gulp-clean']());
+});
+
+gulp.addTask('watch', function() {
+	return packages.gulp.watch(['./lib/js/*.js', './test/*.js', './lib/css/*.css', './*.html'], ['cleanup']);
 });
 
 gulp.addTask('default', function() {
